@@ -1,0 +1,107 @@
+\babel@toc {american}{}\relax 
+\contentsline {chapter}{\numberline {1}Project 01: Secure State Estimation}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Objectives}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Setting of the problem}{3}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Performing Secure State Estimation}{4}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Inertial Jacobi Alternating minimization, or IJAM}{4}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Iterative Soft Thresholding Algorithm, or ISTA}{4}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}My IJAM and MY ISTA}{5}{subsection.1.3.3}%
+\contentsline {section}{\numberline {1.4}Analysis}{5}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Recovery Performance Matrices}{5}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Tunning hyperparameters}{7}{subsection.1.4.2}%
+\contentsline {subsubsection}{changing $\lambda $}{7}{subsubsection*.5}%
+\contentsline {subsubsection}{changing $\nu $}{8}{subsubsection*.8}%
+\contentsline {subsubsection}{Resilience to the number of the attacks}{9}{subsubsection*.10}%
+\contentsline {section}{\numberline {1.5}Further Discussion}{10}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}My Conjecture}{10}{subsection.1.5.1}%
+\contentsline {subsection}{\numberline {1.5.2}The energy of the attack}{10}{subsection.1.5.2}%
+\contentsline {section}{\numberline {1.6}Conclusion}{11}{section.1.6}%
+\contentsline {chapter}{\numberline {2}Project 02: Target localization under sparse sensor attacks}{13}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Objectives}{13}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Setting of the problem}{13}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Implementation of the algorithm}{14}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Results,}{15}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Further discussion: }{15}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}why not IJAM?}{15}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}finding the position of the sensor}{16}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Localization using 1 attack-free sensors and not 3. How is it possible?}{16}{subsection.2.5.3}%
+\contentsline {section}{\numberline {2.6}Conclusion}{17}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Project 03: Secure State Estimation of a Dynamic CPS with Sparse Sensor Attacks}{18}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Objectives}{18}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Setting of the problem}{18}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Implementation}{19}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Luenberg Observer}{19}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Sparse Soft Observer (SSO)}{19}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Deadbeat Sparse Soft Observer (D-SSO)}{19}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Enhancing the estimation by removing the attacked measurements}{20}{subsection.3.3.4}%
+\contentsline {section}{\numberline {3.4}Analysis}{20}{section.3.4}%
+\contentsline {section}{\numberline {3.5}conclusion}{24}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Project 04: Target tracking under sparse sensor attacks}{25}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Objectives}{25}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Setting of the problem}{25}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Implementation of the algorithm}{26}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Luenberg Observer}{26}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}SSO for tracking}{26}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}D-SSO for tracking}{27}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Results}{27}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}State Support Error}{27}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Attack Support Error:}{29}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Conclusion}{30}{section.4.5}%
+\contentsline {chapter}{\numberline {5}Project 05: Distributed Target localization under sparse sensor attacks}{31}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Objectives}{31}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Setting of the problem}{31}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Implementation of the algorithm}{32}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}DISTA for Ring Topology}{32}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}DISTA for Star Topology}{33}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Results}{35}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Further discussion}{36}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Conclusion}{36}{section.5.6}%
+\contentsline {chapter}{\numberline {6}Project 06: Distributed Control of a Multi-agent magnetic levitation system}{38}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Objectives}{38}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Setting of the problem}{38}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Dynamics of the Nodes}{38}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Reference generation by the leader node}{39}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Simulation Equation}{40}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Topology of the network}{42}{subsection.6.2.4}%
+\contentsline {section}{\numberline {6.3}Inverstigating tree topology}{42}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Distributed control protocol with the local observer}{43}{subsection.6.3.1}%
+\contentsline {subsubsection}{Step reference}{43}{subsubsection*.41}%
+\contentsline {subsubsection}{Ramp reference}{43}{subsubsection*.43}%
+\contentsline {subsubsection}{Sinusoidal reference}{44}{subsubsection*.45}%
+\contentsline {subsection}{\numberline {6.3.2}Distributed control protocol with the global observer}{44}{subsection.6.3.2}%
+\contentsline {subsubsection}{Step reference}{44}{subsubsection*.47}%
+\contentsline {subsubsection}{Ramp reference}{45}{subsubsection*.49}%
+\contentsline {subsubsection}{Sinusoidal reference}{45}{subsubsection*.51}%
+\contentsline {subsection}{\numberline {6.3.3}Investigating Ring Topology}{45}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Distributed control protocol with the local observer}{46}{subsection.6.3.4}%
+\contentsline {subsubsection}{Step reference}{46}{subsubsection*.54}%
+\contentsline {subsubsection}{Ramp reference}{47}{subsubsection*.56}%
+\contentsline {subsubsection}{Sinusoidal reference}{47}{subsubsection*.58}%
+\contentsline {subsection}{\numberline {6.3.5}Distributed control protocol with the global observer}{48}{subsection.6.3.5}%
+\contentsline {subsubsection}{Step reference}{48}{subsubsection*.60}%
+\contentsline {subsubsection}{Ramp reference}{48}{subsubsection*.62}%
+\contentsline {subsubsection}{Sinusoidal reference}{49}{subsubsection*.64}%
+\contentsline {subsection}{\numberline {6.3.6}Investigating fully connected Topology}{49}{subsection.6.3.6}%
+\contentsline {subsection}{\numberline {6.3.7}Distributed control protocol with the local observer}{50}{subsection.6.3.7}%
+\contentsline {subsubsection}{Step reference}{50}{subsubsection*.67}%
+\contentsline {subsubsection}{Ramp reference}{50}{subsubsection*.69}%
+\contentsline {subsubsection}{Sinusoidal reference}{51}{subsubsection*.71}%
+\contentsline {subsection}{\numberline {6.3.8}Distributed control protocol with the global observer}{51}{subsection.6.3.8}%
+\contentsline {subsubsection}{Step reference}{51}{subsubsection*.73}%
+\contentsline {subsubsection}{Ramp reference}{52}{subsubsection*.75}%
+\contentsline {subsubsection}{Sinusoidal reference}{52}{subsubsection*.77}%
+\contentsline {subsection}{\numberline {6.3.9}Investigating star Topology}{52}{subsection.6.3.9}%
+\contentsline {subsection}{\numberline {6.3.10}Distributed control protocol with the local observer}{53}{subsection.6.3.10}%
+\contentsline {subsubsection}{Step reference}{53}{subsubsection*.80}%
+\contentsline {subsubsection}{Ramp reference}{54}{subsubsection*.82}%
+\contentsline {subsubsection}{Sinusoidal reference}{54}{subsubsection*.84}%
+\contentsline {subsection}{\numberline {6.3.11}Distributed control protocol with the global observer}{55}{subsection.6.3.11}%
+\contentsline {subsubsection}{Step reference}{55}{subsubsection*.86}%
+\contentsline {subsubsection}{Ramp reference}{55}{subsubsection*.88}%
+\contentsline {subsubsection}{Sinusoidal reference}{56}{subsubsection*.90}%
+\contentsline {subsection}{\numberline {6.3.12}Comparing the performance of the difference topologies}{56}{subsection.6.3.12}%
+\contentsline {subsection}{\numberline {6.3.13}Comparing the performance of the local observer vs. global observer}{56}{subsection.6.3.13}%
+\contentsline {section}{\numberline {6.4}discretized implementation global observer}{56}{section.6.4}%
+\contentsline {section}{\numberline {6.5}The effect of the coupling gain $c$ and weight matrices $Q$ and $R$}{58}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Effect of noise}{58}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Selected structure}{59}{section.6.7}%

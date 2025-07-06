@@ -1,0 +1,81 @@
+\documentclass[a4paper, 12pt]{report}
+\usepackage[a4paper, top=2cm , bottom=2cm , right=2cm , left=2cm ]{geometry}
+
+\usepackage{graphicx} % Required for inserting images
+\usepackage[T1]{fontenc}
+\usepackage[<@language@>]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{amsfonts}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{float}
+\usepackage{soul}
+\usepackage[makeroom]{cancel}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{mathtools}
+\usepackage{matlab-prettifier}
+\usepackage{subcaption}
+\usepackage{bm}
+\usepackage{tikz}
+\usepackage{colortbl} % for cell color in matrices
+
+% Do not indent paragraphs
+\usepackage[parfill]{parskip}
+
+% In case of an image at the bottom, but the footnote below the image (without this the image will be below the footnote)
+\usepackage[bottom]{footmisc}
+
+% --------- CUSTOM HEADER ----------
+\input{customizations/header.tex}
+
+% ------------ NEW ENVS ------------
+\input{customizations/environment.tex}
+
+% ---------- NEW COMMANDS ----------
+\input{customizations/commands.tex}
+
+
+% Make references clickable and change style of links to blue
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+
+\graphicspath{ {images/} }
+
+\input{customizations/title-spacing.tex}
+
+\title{
+    \textbf{\Huge{<@title@>}}\\
+    \textit{Lecture notes}
+}
+\author{<@author@>}
+\date{A.Y. <@academic_year@>}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+
+% ---------------------------------------------------------------------
+% ------------------------ MODIFY ONLY BELOW --------------------------
+% ---------------------------------------------------------------------
+
+% \input{xhapters/1_my_first_chapter}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+% Declare appendix and set the equation counter format to (A.section.eqNumber)
+\appendix
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+<@appendix@>
+
+\end{document}

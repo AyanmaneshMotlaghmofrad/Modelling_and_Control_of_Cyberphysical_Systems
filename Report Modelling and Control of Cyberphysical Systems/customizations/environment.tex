@@ -1,0 +1,14 @@
+% ---------- Proof environment ----------
+\newenvironment{proof}
+{\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit{\underline{Dim.}} \\[10pt] \textit\bgroup}
+{\egroup \par \raggedleft $\square$ \end{mdframed}}
+
+% Proof without top and bottom borders
+\newenvironment{proof2}
+{\vspace*{10pt} \begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false, bottomline=false, topline=false] \textit{\underline{Dim.}} \\[10pt] \textit\bgroup}
+{\egroup \par \raggedleft $\square$ \end{mdframed}}
+
+% ---------- Addendum environment ----------
+\newenvironment{addendum}
+{\begin{mdframed}[leftmargin=15pt, rightmargin=15pt, leftline=false, rightline=false] \textit\bgroup}
+{\egroup\hfill $\diamond$\end{mdframed}}
