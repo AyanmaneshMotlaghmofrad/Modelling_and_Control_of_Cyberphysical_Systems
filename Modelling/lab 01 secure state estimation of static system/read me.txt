@@ -1,0 +1,4 @@
+my detection version 2 still has some problems and does not work well. 
+make version 3 based on the first version.
+
+A new version of my algorithm is implimented in the CPS_lab_01_05

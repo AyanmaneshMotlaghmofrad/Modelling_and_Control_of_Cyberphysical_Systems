@@ -1,0 +1,549 @@
+%secure state estimation
+% in the case of A = cte
+clc
+clear variables
+close all
+format compact
+
+%% setting the parameters
+
+% System dimension information
+
+n = 15; % the number of the states
+q = 30; % the length of the output vector
+h = 2; % two sensors are under attack.
+
+% solver parameters
+delta = 1e-10;
+delta_my_IJAM = 1e-10;
+delta_my_ISTA = 1e-10;
+max_iteration = 1e5;
+
+% simulation part
+run = 20; % the number of simulations
+lambda_vec = [0.1, 0.4, 0.7, 1]; % Lambda values
+
+% Create legend labels for lambda values
+legendLabels = arrayfun(@(x) sprintf('\\lambda = %.1f', x), lambda_vec, 'UniformOutput', false);
+lambda_vec = [0.1, 0.4, 0.7, 1]; % Lambda values
+
+% Create legend labels for lambda values
+legendLabels = arrayfun(@(x) sprintf('\\lambda = %.1f', x), lambda_vec, 'UniformOutput', false);
+
+
+for lam = 1:length(lambda_vec)
+    lambda = lambda_vec(lam);
+    % performance matrices initialization
+    last_col_IJAM = zeros(1,run);    
+    last_col_ISTA = zeros(1,run);
+    last_col_my_IJAM = zeros(1,run);
+    last_col_my_ISTA = zeros(1,run);
+    
+    state_estimation_error_IJAM = zeros(run,max_iteration);
+    state_estimation_error_ISTA = zeros(run,max_iteration);
+    state_estimation_error_my_IJAM = zeros(run,max_iteration); 
+    state_estimation_error_my_ISTA = zeros(run,max_iteration); 
+    
+    attack_support_error_IJAM = zeros(run,max_iteration);
+    attack_support_error_ISTA = zeros(run,max_iteration);
+    attack_support_error_my_IJAM = zeros(run,max_iteration);
+    attack_support_error_my_ISTA = zeros(run,max_iteration);
+    
+    
+    for i = 1:run  
+    
+        %Setting the system++++++++++++++++++++++++++++++++++++++++++++++++++
+        % making C according to normal distribution
+    
+        C = randn(q,n);
+        G = [C,eye(q)];
+        % support of the attack vector a: uniform distribution
+        % and "real" attack 
+    
+        a_tilde = zeros(q,1);
+        h_count = h;
+        
+        while 1
+            
+            idx = randi([1,q]);
+        
+            if (a_tilde(idx) == 0)
+                
+                %chossing the number
+                side = randi([1,2]);
+                if (side == 1)
+                    a_tilde(idx,1) = rand + 2;
+                    
+                    h_count = h_count-1;
+                    if h_count== 0
+                        break
+                    end
+        
+                else
+                    a_tilde(idx,1) = rand - 5;
+                
+                    h_count = h_count-1;
+                    if h_count== 0
+                        break
+                    end
+        
+                end
+                % the number is chosen
+            end
+        
+        end
+        % the real attack is defined here
+    
+        % "real" state
+        x_tilde = zeros(n,1);
+        
+        for j = 1:n
+            
+            side = randi([1,2]);
+            if (side == 1)
+                x_tilde(j,1) = rand + 2;
+            else
+                x_tilde(j,1) = rand - 3;
+            end
+        
+        end
+        % real state is defined here
+        
+        % measurement noise 
+       
+        eta = 10^-2*randn(q,1);
+    
+        
+        % y, the measurement vector 
+        % corrupted by noise and attack
+    
+        y = C*x_tilde + a_tilde + eta;
+        
+        %checking the condition for h attack correctability
+        % since the system is stable this can be checked
+        zero_norm = length(find(C*x_tilde));
+    
+        if( zero_norm < 2*h+1)
+            break
+        end
+    
+    
+        
+        %--------------------------------------------------------------------
+    
+        % SOLVERS ***********************************************************
+    
+        %IJAM ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        % parameter setting
+        lambda = 0.1;
+        nu = 0.7;
+        % initialization
+        x_hat_IJAM = zeros(n,max_iteration);
+        a_hat_IJAM = zeros(q,max_iteration);
+    
+    for k = 1:max_iteration
+        
+        x_hat_IJAM(:,k+1) = pinv(C)*(y-a_hat_IJAM(:,k));
+
+        a_hat_IJAM(:,k+1) = prox_l1(a_hat_IJAM(:,k) - nu*(C*x_hat_IJAM(:,k) ...
+                            +a_hat_IJAM(:,k)-y),lambda*nu);
+        
+        
+        %calculating errors
+        state_estimation_error_IJAM(i,k+1) = norm(x_hat_IJAM(:,k+1)-x_tilde)/norm(x_tilde); 
+        attack_support_error_IJAM(i,k+1) = sum((a_hat_IJAM(:, k+1) ~= 0) ~= (a_tilde ~= 0));
+
+        if(norm(x_hat_IJAM(:,k+1)-x_hat_IJAM(:,k))^2<delta)  % condition for maximum iteration number
+            break
+        end
+
+    end
+ 
+    last_col_IJAM(i) = k;
+    attack_support_error_IJAM(i,k+2:end)=attack_support_error_IJAM(i,k+1);
+    state_estimation_error_IJAM(i,k+2:end) = state_estimation_error_IJAM(i,k+1);
+    
+       
+        %ISTA ++++++++++++++++++++++++++++++++++++++++++++++++++
+        nu = 0.99/(norm(G,2)^2);
+        
+        %initialization
+        x_hat_ISTA = zeros(n,max_iteration);
+        a_hat_ISTA = zeros(q,max_iteration);
+    
+   for k = 1:max_iteration
+        
+        x_hat_ISTA(:,k+1) = x_hat_ISTA(:,k) - ... 
+                            nu*C'*(C*x_hat_ISTA(:,k) + a_hat_ISTA(:,k)- y);
+      
+        a_hat_ISTA(:,k+1) = prox_l1(a_hat_ISTA(:,k) - nu*(C*x_hat_ISTA(:,k) ...
+                             +a_hat_ISTA(:,k)-y),lambda*nu);
+        
+        %calculating errors
+        state_estimation_error_ISTA(i,k+1) = norm(x_hat_ISTA(:,k+1)-x_tilde)/norm(x_tilde); 
+        attack_support_error_ISTA(i,k+1) = sum((a_hat_ISTA(:, k+1) ~= 0) ~= (a_tilde ~= 0));
+
+        if(norm(x_hat_ISTA(:,k+1)-x_hat_ISTA(:,k))^2<delta)  % condition for maximum iteration number
+            break
+        end
+    end
+    last_col_ISTA(i) = k; %finding the last non-zero column
+    attack_support_error_ISTA(i,k+2:end)=attack_support_error_ISTA(i,k+1);
+    state_estimation_error_ISTA(i,k+2:end) = state_estimation_error_ISTA(i,k+1);
+    
+         % [[1:n]' x_tilde x_hat_ISTA(:,last_col_ISTA(i))]
+        % [[1:q]' a_tilde a_hat_ISTA(:,last_col_ISTA(i))]
+        
+        
+    
+        % MIX my IJAM +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        % After a_hat became h-sparse, we simply make a support matrix 
+        % for the attack, and then we solve the problem in one step
+        % by least-square
+    
+        % delta_my_IJAM = 1e-5; we don't need a very exact convergence
+        lambda = 0.1;
+        nu = 0.7;
+        
+        %initialization
+        x_hat_my_IJAM = zeros(n,max_iteration);
+        a_hat_my_IJAM = zeros(q,max_iteration);
+        %try initializing x with pinv(G)*C
+        
+        for k = 1:max_iteration
+            
+            x_hat_my_IJAM(:,k+1) = pinv(C)*(y-a_hat_my_IJAM(:,k));
+    
+            a_hat_my_IJAM(:,k+1) = prox_l1(a_hat_my_IJAM(:,k) - nu*(C*x_hat_my_IJAM(:,k) ...
+                                +a_hat_my_IJAM(:,k)-y),lambda*nu);
+            
+            %calculating errors
+            state_estimation_error_my_IJAM(i,k+1) = norm(x_hat_my_IJAM(:,k+1)-x_tilde)/norm(x_tilde); 
+            attack_support_error_my_IJAM(i,k+1) = sum((a_hat_my_IJAM(:,k+1)~=0) ~= (a_tilde~= 0));
+    
+            if(norm(x_hat_my_IJAM(:,k+1)-x_hat_my_IJAM(:,k))^2<delta_my_IJAM)  % condition for maximum iteration number
+                break
+            end
+            
+        end
+        
+        % ATTENTION!!
+        % still one step needs to be done so these numbers are incremented by 1
+        % at the end of the process.
+        last_col_my_IJAM(i) = k;
+           
+    
+        
+        non_zero_idx = find(a_hat_my_IJAM(:,last_col_my_IJAM(i)));
+        
+        
+        % attack support matrix
+        Ga = zeros(q); 
+        for j = 1:length(non_zero_idx)
+            Ga(non_zero_idx(j),non_zero_idx(j)) = 1;
+        end
+        
+        G_sparse = [C, Ga]; %the position of the attacked is known now.
+        z_sparse = pinv(G_sparse)*y;
+        
+        % the last time k+1 was filled in the table
+        x_hat_my_IJAM(:,k+2) = z_sparse(1:n);
+        
+        % attack needs to be cleaned due to numerical errors
+        attack = z_sparse(n+non_zero_idx);
+        for j = 1:length(non_zero_idx)
+           a_hat_my_IJAM(non_zero_idx(j),k+2) = attack(j);
+        end
+        % cleaning 'a' due to numerical error
+        
+        % since one step is done outside of the for cycle
+        last_col_my_IJAM(i) = last_col_my_IJAM(i) + 1;
+        
+        state_estimation_error_my_IJAM(i,k+2) = norm(x_hat_my_IJAM(:,k+2)-x_tilde)/norm(x_tilde); 
+        attack_support_error_my_IJAM(i,k+2) = sum((a_hat_my_IJAM(:, k+2) ~= 0) ~= (a_tilde ~= 0));
+
+        
+        % semilogx(state_estimation_error_my_IJAM(i,:),'r')
+        
+        % states comparison (just for checking if it works)
+        % [[1:n]' x_tilde x_hat_my_IJAM(:,last_col_my_IJAM(i)) x_hat_IJAM(:,last_col_IJAM(i))]
+        % [[1:q]' a_tilde a_hat_my_IJAM(:,last_col_my_IJAM(i)) a_hat_IJAM(:,last_col_IJAM(i))]
+        
+        % MIX my ISTA +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        % After a_hat became h-sparse, we simply make a support matrix 
+        % for the attack, and then we solve the problem in one step
+        % by least-square
+    
+        % delta_my_ISTA = 1e-5; we don't need a very exact convergence
+        lambda = 0.1;
+        nu = 0.99/(norm(G,2)^2);
+        %initialization
+        x_hat_my_ISTA = zeros(n,max_iteration);
+        a_hat_my_ISTA = zeros(q,max_iteration);
+        %try initializing x with pinv(G)*C
+        
+        for k = 1:max_iteration
+            
+            x_hat_my_ISTA(:,k+1) = x_hat_my_ISTA(:,k) - ... 
+                                nu*C'*(C*x_hat_my_ISTA(:,k) + a_hat_my_ISTA(:,k)- y);
+          
+            a_hat_my_ISTA(:,k+1) = prox_l1(a_hat_my_ISTA(:,k) - nu*(C*x_hat_my_ISTA(:,k) ...
+                                 +a_hat_my_ISTA(:,k)-y),lambda*nu);
+    
+            state_estimation_error_my_ISTA(i,k+1) = norm(x_hat_my_ISTA(:,k+1)-x_tilde)/norm(x_tilde); 
+            attack_support_error_my_ISTA(i,k+1) = sum((a_hat_my_ISTA(:, k+1) ~= 0) ~= (a_tilde ~= 0));
+
+    
+            if(norm(x_hat_my_ISTA(:,k+1)-x_hat_my_ISTA(:,k))^2<delta_my_ISTA)  % condition for maximum iteration number
+                break
+            end
+            
+        end
+        
+        % ATTENTION!!
+        % still one step needs to be done so these numbers are incremented by 1
+        % at the end of the process.
+        last_col_my_ISTA(i) = k;
+           
+        non_zero_idx = find(a_hat_my_ISTA(:,last_col_my_ISTA(:,i)));
+        
+        
+        % attack support matrix
+        Ga = zeros(q); 
+        for j = 1:length(non_zero_idx)
+            Ga(non_zero_idx(j),non_zero_idx(j)) = 1;
+        end
+        
+        G_sparse = [C, Ga]; %the position of the attacked is known now.
+        z_sparse = pinv(G_sparse)*y;
+        
+        % the last time k+1 was filled in the table
+        x_hat_my_ISTA(:,k+2) = z_sparse(1:n);
+    
+        % attack needs to be cleaned due to numerical errors
+        attack = z_sparse(n+non_zero_idx);
+        for j = 1:length(non_zero_idx)
+           a_hat_my_ISTA(non_zero_idx(j),k+2) = attack(j);
+        end
+        % cleaning a due to numerical error
+        
+        % since one step is done outside of the for cycle
+        last_col_my_ISTA(i) = last_col_my_ISTA(i) + 1;
+       
+        state_estimation_error_my_ISTA(i,k+2) = norm(x_hat_my_ISTA(:,k+2)-x_tilde)/norm(x_tilde); 
+        attack_support_error_my_ISTA(i,k+2) = sum((a_hat_my_ISTA(:,k+2)~=0) - (a_tilde~= 0));
+    
+     
+     
+        % states comparison (just for checking if it works)
+        % [[1:n]' x_tilde x_hat_my_ISTA(:,last_col_my_ISTA(i)) x_hat_ISTA(:,last_col_ISTA(i))]
+        % [[1:q]' a_tilde a_hat_my_ISTA(:,last_col_my_ISTA(i)) a_hat_ISTA(:,last_col_ISTA(i))]
+        
+    
+        %---------------------------------------------------------------------
+     
+    end
+    
+    
+    % Making average of the performance matrices
+    
+    %average convergance comparison
+    mean_iteration_IJAM(lam) = mean(last_col_IJAM)
+    mean_iteration_ISTA(lam) = mean(last_col_ISTA)
+    mean_iteration_my_IJAM(lam) = mean(last_col_my_IJAM)
+    mean_iteration_my_ISTA(lam) = mean(last_col_my_ISTA)
+    
+    % average attack support error
+    mean_attack_support_error_IJAM = mean(attack_support_error_IJAM,1);
+    mean_attack_support_error_ISTA = mean(attack_support_error_ISTA,1);
+    mean_attack_support_error_my_IJAM = mean(attack_support_error_my_IJAM,1);
+    mean_attack_support_error_my_ISTA = mean(attack_support_error_my_ISTA,1);
+    
+    % average estimation error
+    mean_state_estimation_error_IJAM = mean(state_estimation_error_IJAM,1);
+    mean_state_estimation_error_ISTA = mean(state_estimation_error_ISTA,1);
+    mean_state_estimation_error_my_IJAM = mean(state_estimation_error_my_IJAM,1);
+    mean_state_estimation_error_my_ISTA = mean(state_estimation_error_my_ISTA,1);
+    
+    % precision comparison
+    last_non_zero_IJAM = find(mean_state_estimation_error_IJAM ~= 0, 1, 'last');
+    last_non_zero_ISTA = find(mean_state_estimation_error_ISTA ~= 0, 1, 'last');
+    last_non_zero_my_IJAM = find(mean_state_estimation_error_my_IJAM ~= 0, 1, 'last');
+    last_non_zero_my_ISTA = find(mean_state_estimation_error_my_ISTA ~= 0, 1, 'last');
+    
+    % last error for each lambda
+    mean_sse_my_IJAM(lam) = mean_state_estimation_error_my_IJAM(last_non_zero_my_IJAM)
+    mean_sse_IJAM(lam) = mean_state_estimation_error_IJAM(last_non_zero_IJAM)
+    mean_sse_my_ISTA(lam) = mean_state_estimation_error_my_ISTA(last_non_zero_my_ISTA)
+    mean_sse_ISTA(lam) = mean_state_estimation_error_ISTA(last_non_zero_ISTA)
+    
+        % average attack support error
+    mean_a_IJAM(lam) = mean_attack_support_error_IJAM(last_non_zero_IJAM)
+    mean_a_ISTA(lam) = mean_attack_support_error_ISTA(last_non_zero_ISTA)
+    mean_a_my_IJAM(lam) = mean_attack_support_error_my_IJAM(last_non_zero_my_IJAM)
+    mean_a_my_ISTA(lam) = mean_attack_support_error_my_ISTA(last_non_zero_my_ISTA)
+    
+    my_IJAM_precision_vs_IJAM = (mean_state_estimation_error_IJAM(last_non_zero_IJAM)-mean_state_estimation_error_my_IJAM(last_non_zero_my_IJAM))...
+                            /mean_state_estimation_error_IJAM(last_non_zero_IJAM)*100
+    my_ISTA_precision_vs_ISTA = (mean_state_estimation_error_ISTA(last_non_zero_ISTA)-mean_state_estimation_error_my_ISTA(last_non_zero_my_ISTA))...
+                            /mean_state_estimation_error_ISTA(last_non_zero_ISTA)*100
+    
+    figure(1)
+    hold on,grid on
+    plot(mean_state_estimation_error_ISTA)
+    title('mean state estimation error of ISTA for differen lambda')
+    xlabel('iterations')
+    ylabel('mean relative ℓ₂ norm error')
+
+    figure(2)
+    hold on,grid on
+    plot(mean_attack_support_error_ISTA)
+    title('mean attack support error of ISTA for differen lambda')
+    xlabel('iterations')
+    ylabel('mean relative ℓ₂ norm error')
+end
+
+figure(1)
+set(gca, 'XScale', 'log')
+% Use the legend command
+legend(legendLabels);
+
+figure(2)
+set(gca, 'XScale', 'log')
+% Use the legend command
+legend(legendLabels);
+
+
+%% plotting nu variant
+figure(3)
+% Example Data (Replace with actual values)
+mean_iterations = [ % Y-axis values (each row corresponds to a lambda)
+                    % lambda = 0.1 -> [IJAM, my IJAM, ISTA, my ISTA]                    
+                    mean_iteration_IJAM', mean_iteration_ISTA'
+                    ];
+
+
+
+% Labels for methods
+methods = {'ISTA', 'IJAM'};
+
+% Plot grouped bar chart
+bar_handle = bar(lambda_vec, mean_iterations, 'grouped');
+
+% Define unique colors for each method
+colors = [0.2 0.6 0.8;  % Soft Cyan for IJAM
+          0.8 0.4 0.2;  % Warm Orange for my IJAM
+          0.4 0.2 0.6;  % Purple for ISTA
+          0.2 0.8 0.4]; % Green for my ISTA
+
+% Apply colors to each bar group
+for k = 1:length(bar_handle)
+    bar_handle(k).FaceColor = colors(k, :);
+end
+
+% Formatting
+xlabel('\lambda') % X-axis label
+ylabel('Mean Iterations') % Y-axis label
+title('Mean Iterations vs. \lambda for Different Methods') % Title
+legend(methods, 'Location', 'northwest') % Legend
+set(gca, 'XTick', lambda_vec) % Show only lambda values on x-axis
+grid on
+
+%%
+figure(4)
+% Example Data (Replace with actual values)
+
+mean_error = [ % Y-axis values (each row corresponds to a lambda)
+                    % lambda = 0.1 -> [IJAM, my IJAM, ISTA, my ISTA]
+                    mean_sse_IJAM'
+                    mean_sse_ISTA'
+                    ];
+
+
+
+% Labels for methods
+methods = {'IJAM', 'my IJAM', 'ISTA', 'my ISTA'};
+
+% Plot grouped bar chart
+bar_handle = bar(lambda_vec, mean_error, 'grouped');
+
+% Define unique colors for each method
+colors = [0.2 0.6 0.8;  % Soft Cyan for IJAM
+          0.8 0.4 0.2;  % Warm Orange for my IJAM
+          0.4 0.2 0.6;  % Purple for ISTA
+          0.2 0.8 0.4]; % Green for my ISTA
+
+% Apply colors to each bar group
+for k = 1:length(bar_handle)
+    bar_handle(k).FaceColor = colors(k, :);
+end
+
+% Formatting
+xlabel('\lambda') % X-axis label
+ylabel('Mean Estmation Error') % Y-axis label
+title('Mean Estimation Error vs. \lambda for Different Methods') % Title
+legend(methods, 'Location', 'northwest') % Legend
+set(gca, 'XTick', lambda_vec) % Show only lambda values on x-axis
+grid on
+
+figure(5)
+% Example Data (Replace with actual values)
+
+mean_error = [ % Y-axis values (each row corresponds to a lambda)
+                    % lambda = 0.1 -> [IJAM, my IJAM, ISTA, my ISTA]
+                    mean_a_IJAM' ,  mean_a_ISTA'];
+
+
+
+% Labels for methods
+methods = {'IJAM', 'my IJAM', 'ISTA', 'my ISTA'};
+
+% Plot grouped bar chart
+bar_handle = bar(lambda_vec, mean_error, 'grouped');
+
+% Define unique colors for each method
+colors = [0.2 0.6 0.8;  % Soft Cyan for IJAM
+          0.8 0.4 0.2;  % Warm Orange for my IJAM
+          0.4 0.2 0.6;  % Purple for ISTA
+          0.2 0.8 0.4]; % Green for my ISTA
+
+% Apply colors to each bar group
+for k = 1:length(bar_handle)
+    bar_handle(k).FaceColor = colors(k, :);
+end
+
+% Formatting
+xlabel('\lambda') % X-axis label
+ylabel('Mean Iterations') % Y-axis label
+title('Mean attack error vs. \lambda for Different Methods') % Title
+legend(methods, 'Location', 'northwest') % Legend
+set(gca, 'XTick', lambda_vec) % Show only lambda values on x-axis
+grid on
+%% Normal plots
+% 
+% figure(1)  
+% semilogx(mean_state_estimation_error_IJAM,'c')
+% hold on,grid on
+% semilogx(mean_state_estimation_error_ISTA,'g')
+% semilogx(mean_state_estimation_error_my_IJAM,'r')
+% semilogx(mean_state_estimation_error_my_ISTA,'b')
+% 
+% title('Estate Estimation Error')
+% ylabel( 'mean relative ℓ₂ norm error')
+% xlabel('iteration number')
+% legend('IJAM','ISTA','my IJAM', 'my ISTA')
+% 
+% figure(2)  
+% semilogx(mean_attack_support_error_IJAM,'c')
+% hold on,grid on
+% semilogx(mean_attack_support_error_ISTA,'g')
+% semilogx(mean_attack_support_error_my_IJAM,'r')
+% semilogx(mean_attack_support_error_my_ISTA,'b')
+% 
+% title('Support Attack Error')
+% ylabel( 'mean support attack error')
+% xlabel('iteration number')
+% legend('IJAM','ISTA','my IJAM', 'my ISTA')
+% 
+% 
+
